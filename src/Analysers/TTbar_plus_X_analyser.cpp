@@ -74,6 +74,14 @@ void TTbar_plus_X_analyser::ePlusJetsSignalAnalysis(const EventPtr event) {
 		treeMan_->Fill("MuonUp",1.0);
 		treeMan_->Fill("MuonDown",1.0);
 
+
+		// Neutrino Solver
+		NeutrinoSolver neutrinoSolver( &(signalElectron->getFourVector()), &(bJets[0]->getFourVector()), 80, 173 );
+		double test = -1;
+		FourVector neutrino = neutrinoSolver.GetBest(MET_main->getFourVector().Px(), MET_main->getFourVector().Py(), 25., 25., 0., test );
+
+		cout << "Neutrino pt, pz : " << neutrino.Pt() << " " << neutrino.Pz() << endl;
+		cout << "MET : " << MET_main->et() << " " << MET_main->getFourVector().Pt() << endl;
 		// metAnalyserEPlusJetsRefSelection_->setScale(bjetWeight * efficiencyCorrection);
 		// electronAnalyserRefSelection_->setScale(bjetWeight * efficiencyCorrection);
 		// vertexAnalyserEPlusJetsRefSelection_->setScale(bjetWeight * efficiencyCorrection);
