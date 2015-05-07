@@ -9,7 +9,6 @@
 #include "../../interface/BTagWeight.h"
 #include "../../interface/GlobalVariables.h"
 #include "../../interface/Event.h"
-#include "../Rochester/NeutrinoSolver.cc" // WHY???
 
 
 namespace BAT {
@@ -49,7 +48,7 @@ void TTbar_plus_X_analyser::ePlusJetsSignalAnalysis(const EventPtr event) {
 
 		histMan_->setCurrentBJetBin(numberOfBjets);
 		histMan_->H1D("BTagWeights")->Fill(bjetWeight);
-		histMan_->H1D("N_BJets_reweighted")->Fill(numberOfBjets, event->weight() );//SAME????????
+		histMan_->H1D("N_BJets_reweighted")->Fill(numberOfBjets, event->weight() );
 		histMan_->H1D("N_BJets")->Fill(numberOfBjets, event->weight());
 
 
@@ -74,42 +73,6 @@ void TTbar_plus_X_analyser::ePlusJetsSignalAnalysis(const EventPtr event) {
 		treeMan_->Fill("ElectronDown",electronEfficiencyCorrection_down);
 		treeMan_->Fill("MuonUp",1.0);
 		treeMan_->Fill("MuonDown",1.0);
-
-
-		// Neutrino Solver
-		NeutrinoSolver neutrinoSolver( &(signalElectron->getFourVector()), &(bJets[0]->getFourVector()), 80, 173 );
-		double test = -1;
-		FourVector neutrino = neutrinoSolver.GetBest(MET_main->getFourVector().Px(), MET_main->getFourVector().Py(), 25., 25., 0., test );
-
-		cout << "Neutrino pt, pz : " << neutrino.Pt() << " " << neutrino.Pz() << endl;
-		cout << "MET : " << MET_main->et() << " " << MET_main->getFourVector().Pt() << endl;
-
-
-		// // Nu - bJets run all of them!!!
-		// NeutrinoSolver myNS( &signalElectron->getFourVector(), &bJets[0]->getFourVector() ); //dont need MT/MW as default - need pointer to TLorentz lepton and b jet (- correct b jet)
-		// double test = 0;// not entirely sure why test is needed - is this a return for chisq?
-		// FourVector neutrino = myNS.GetBest( MET_main->px(), MET_main->py(), 25, 25, 0, test); //get the best four momentum of the neutrino - returned as TLorentzVector (FourVector in particle.h)
-		// // cout << "TEST:" << test << endl;
-
-
-		// NeutrinoSolver myNSbJet2( &signalElectron->getFourVector(), &bJets[1]->getFourVector() );
-		// double test2 = 0;
-		// FourVector neutrino2 = myNSbJet2.GetBest( MET_main->px(), MET_main->py(), 25, 25, 0, test2);
-
-
-		// treeMan_->Fill("NeutrinoPossibility1_Px", neutrino.Px());
-		// treeMan_->Fill("NeutrinoPossibility1_Py", neutrino.Py());
-		// treeMan_->Fill("NeutrinoPossibility1_Pz", neutrino.Pz());
-		// treeMan_->Fill("NeutrinoPossibility1_Energy", neutrino.Energy());
-		// treeMan_->Fill("NeutrinoPossibility1_ChiSq", test);
-
-		// treeMan_->Fill("NeutrinoPossibility2_Px", neutrino2.Px());
-		// treeMan_->Fill("NeutrinoPossibility2_Py", neutrino2.Py());
-		// treeMan_->Fill("NeutrinoPossibility2_Pz", neutrino2.Pz());
-		// treeMan_->Fill("NeutrinoPossibility2_Energy", neutrino2.Energy());
-		// treeMan_->Fill("NeutrinoPossibility2_ChiSq", test2);
-
-
 
 		// metAnalyserEPlusJetsRefSelection_->setScale(bjetWeight * efficiencyCorrection);
 		// electronAnalyserRefSelection_->setScale(bjetWeight * efficiencyCorrection);
@@ -637,30 +600,6 @@ void TTbar_plus_X_analyser::createHistograms() {
 	treeMan_->addBranch("ElectronDown", "F", "FitVariables" + Globals::treePrefix_);
 	treeMan_->addBranch("MuonUp", "F", "FitVariables" + Globals::treePrefix_);
 	treeMan_->addBranch("MuonDown", "F", "FitVariables" + Globals::treePrefix_);
-
-
-
-
-
-
-
-	// treeMan_->addBranch("NeutrinoPossibility1_Px", "F", "FitVariables" + Globals::treePrefix_);
-	// treeMan_->addBranch("NeutrinoPossibility1_Py", "F", "FitVariables" + Globals::treePrefix_);
-	// treeMan_->addBranch("NeutrinoPossibility1_Pz", "F", "FitVariables" + Globals::treePrefix_);
-	// treeMan_->addBranch("NeutrinoPossibility1_Energy", "F", "FitVariables" + Globals::treePrefix_);
-	// treeMan_->addBranch("NeutrinoPossibility1_ChiSq", "F", "FitVariables" + Globals::treePrefix_);
-
-	// treeMan_->addBranch("NeutrinoPossibility2_Px", "F", "FitVariables" + Globals::treePrefix_);
-	// treeMan_->addBranch("NeutrinoPossibility2_Py", "F", "FitVariables" + Globals::treePrefix_);
-	// treeMan_->addBranch("NeutrinoPossibility2_Pz", "F", "FitVariables" + Globals::treePrefix_);
-	// treeMan_->addBranch("NeutrinoPossibility2_Energy", "F", "FitVariables" + Globals::treePrefix_);
-	// treeMan_->addBranch("NeutrinoPossibility2_ChiSq", "F", "FitVariables" + Globals::treePrefix_);
-
-
-
-
-
-
 
 	treeMan_->setCurrentFolder(histogramFolder_ + "/EPlusJets/QCD non iso e+jets");
 	treeMan_->addBranch("HT", "F", "FitVariables" + Globals::treePrefix_);
