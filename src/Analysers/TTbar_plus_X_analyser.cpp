@@ -11,6 +11,7 @@
 #include "../../interface/Event.h"
 
 
+
 namespace BAT {
 
 void TTbar_plus_X_analyser::analyse(const EventPtr event) {

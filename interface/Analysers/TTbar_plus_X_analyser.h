@@ -18,7 +18,6 @@
 #include "HitFitAnalyser.h"
 #include "Binned_variable_analyser.h"
 
- 
 #include <string>
 
 namespace BAT {
