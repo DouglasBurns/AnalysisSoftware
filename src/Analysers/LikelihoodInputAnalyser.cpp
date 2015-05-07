@@ -1,23 +1,22 @@
 /*
  * LikelihoodInputAnalyser.cpp
  *
- *  Created on: Jul 5, 2011
- *      Author: senkin
+ *  Created on: May 5, 2015
+ *      Author: ejclemen
  */
 #include "../../interface/Analysers/LikelihoodInputAnalyser.h"
 #include "../../interface/GlobalVariables.h"
 #include <boost/scoped_ptr.hpp>
 
-//using namespace reweight;
 using namespace BAT;
 
 
 void LikelihoodInputAnalyser::analyse(const EventPtr event) {
-	cout << "ANALYSING" << endl;
 
 	weight_ = event->weight();
 	treeMan_->setCurrentFolder(histogramFolder_);
 
+	// Require one of the event selections to have been satisfied, and we have a genuine ttbar event
 	int selectionCriteria = -1;
 	if ( event->PassesElectronTriggerAndSelection() && event->isSemiLeptonicElectron() ) selectionCriteria = SelectionCriteria::ElectronPlusJetsReference;
 	else if ( event->PassesMuonTriggerAndSelection() && event->isSemiLeptonicMuon() ) selectionCriteria = SelectionCriteria::MuonPlusJetsReference;
@@ -32,6 +31,7 @@ void LikelihoodInputAnalyser::analyse(const EventPtr event) {
 	const METPointer met(event->MET(metType));
 	const JetCollection genJets( event->GenJets() );
 
+	// Loop over jets and see if the parton matched to it is from ttbar decay
 	for ( unsigned int jet1Index=0; jet1Index < jets.size(); ++jet1Index ) {
 		JetPointer jet1 = jets[jet1Index];
 		cout << "Jet pt : " << jet1->pt() << endl;
