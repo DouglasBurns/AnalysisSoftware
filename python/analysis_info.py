@@ -116,6 +116,7 @@ datasets_8TeV = {'SingleElectron' : [data_path_8TeV + 'SingleElectron/nTuple_v11
 mc_path_13TeV = '/hdfs/TopQuarkGroup/run2/ntuples/v17/'
 data_path_13TeV = ''
 datasets_13TeV = {
+            'TEST' : [ '/storage/ec6821/NTupleProd/CMSSW_7_4_0_pre7/src' ],
             'TTJet' : [ mc_path_13TeV + 'TTJets_Madgraph_PU20bx25' ],
             'TTJet_PU30bx50' : [ mc_path_13TeV + 'TTJets_Madgraph_PU30bx50'],
             #'TTJets_PU4bx50' : [ mc_path_13TeV + 'TTJets_Madgraph_PU4bx50'],

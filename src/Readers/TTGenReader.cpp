@@ -159,7 +159,6 @@ void TTGenReader::readTTGenInfo() {
     // std::cout << "Hadronic B Pz:" << hadronicB->pz() << std::endl;
     // std::cout << "-------------------------------------" << std::endl;
 
-
     ttGenInfo_ = TTGenInfoPointer( new TTGenInfo( quark, quarkBar, leptonicB, hadronicB, singlelepton, singleneutrino, qGenJetIndex, qBarGenJetIndex, leptonicBGenJetIndex, hadronicBGenJetIndex ) );
 
 }
