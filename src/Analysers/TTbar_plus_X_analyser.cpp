@@ -9,6 +9,7 @@
 #include "../../interface/BTagWeight.h"
 #include "../../interface/GlobalVariables.h"
 #include "../../interface/Event.h"
+#include "../Rochester/NeutrinoSolver.cc" // WHY???
 
 
 namespace BAT {
@@ -48,7 +49,7 @@ void TTbar_plus_X_analyser::ePlusJetsSignalAnalysis(const EventPtr event) {
 
 		histMan_->setCurrentBJetBin(numberOfBjets);
 		histMan_->H1D("BTagWeights")->Fill(bjetWeight);
-		histMan_->H1D("N_BJets_reweighted")->Fill(numberOfBjets, event->weight() );
+		histMan_->H1D("N_BJets_reweighted")->Fill(numberOfBjets, event->weight() );//SAME????????
 		histMan_->H1D("N_BJets")->Fill(numberOfBjets, event->weight());
 
 
@@ -73,6 +74,9 @@ void TTbar_plus_X_analyser::ePlusJetsSignalAnalysis(const EventPtr event) {
 		treeMan_->Fill("ElectronDown",electronEfficiencyCorrection_down);
 		treeMan_->Fill("MuonUp",1.0);
 		treeMan_->Fill("MuonDown",1.0);
+
+
+
 
 		// metAnalyserEPlusJetsRefSelection_->setScale(bjetWeight * efficiencyCorrection);
 		// electronAnalyserRefSelection_->setScale(bjetWeight * efficiencyCorrection);
@@ -600,6 +604,30 @@ void TTbar_plus_X_analyser::createHistograms() {
 	treeMan_->addBranch("ElectronDown", "F", "FitVariables" + Globals::treePrefix_);
 	treeMan_->addBranch("MuonUp", "F", "FitVariables" + Globals::treePrefix_);
 	treeMan_->addBranch("MuonDown", "F", "FitVariables" + Globals::treePrefix_);
+
+
+
+
+
+
+
+	treeMan_->addBranch("NeutrinoPossibility1_Px", "F", "FitVariables" + Globals::treePrefix_);
+	treeMan_->addBranch("NeutrinoPossibility1_Py", "F", "FitVariables" + Globals::treePrefix_);
+	treeMan_->addBranch("NeutrinoPossibility1_Pz", "F", "FitVariables" + Globals::treePrefix_);
+	treeMan_->addBranch("NeutrinoPossibility1_Energy", "F", "FitVariables" + Globals::treePrefix_);
+	treeMan_->addBranch("NeutrinoPossibility1_ChiSq", "F", "FitVariables" + Globals::treePrefix_);
+
+	treeMan_->addBranch("NeutrinoPossibility2_Px", "F", "FitVariables" + Globals::treePrefix_);
+	treeMan_->addBranch("NeutrinoPossibility2_Py", "F", "FitVariables" + Globals::treePrefix_);
+	treeMan_->addBranch("NeutrinoPossibility2_Pz", "F", "FitVariables" + Globals::treePrefix_);
+	treeMan_->addBranch("NeutrinoPossibility2_Energy", "F", "FitVariables" + Globals::treePrefix_);
+	treeMan_->addBranch("NeutrinoPossibility2_ChiSq", "F", "FitVariables" + Globals::treePrefix_);
+
+
+
+
+
+
 
 	treeMan_->setCurrentFolder(histogramFolder_ + "/EPlusJets/QCD non iso e+jets");
 	treeMan_->addBranch("HT", "F", "FitVariables" + Globals::treePrefix_);
