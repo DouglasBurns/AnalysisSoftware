@@ -28,6 +28,9 @@ std::string Globals::TQAFPath = "";
 bool Globals::useHitFit = false;
 bool Globals::produceFitterASCIIoutput = false;
 
+// Likelihood ttbar reco
+boost::shared_ptr<TH1F> Globals::csvCorrectPermHistogram = boost::shared_ptr<TH1F>(new TH1F());
+
 //electrons
 ElectronAlgorithm::value Globals::electronAlgorithm = ElectronAlgorithm::ParticleFlow;
 int Globals::ElectronScaleFactorSystematic = 0;

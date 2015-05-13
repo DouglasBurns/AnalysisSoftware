@@ -40,6 +40,9 @@ struct Globals {
 	static bool useHitFit;
 	static bool produceFitterASCIIoutput;
 
+	// Likelihood ttbar reco
+	static boost::shared_ptr<TH1F> csvCorrectPermHistogram;
+
 	//electrons
 	static ElectronAlgorithm::value electronAlgorithm;
 	static int ElectronScaleFactorSystematic;
@@ -64,7 +67,6 @@ struct Globals {
 	static int LightJetSystematic;
 	static int JetSmearingSystematic;
 	static bool applyJetSmearing;
-
 
 	//MET
 	static METAlgorithm::value metAlgorithm;

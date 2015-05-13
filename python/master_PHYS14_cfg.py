@@ -20,6 +20,7 @@ default_settings = {
             'PUFile':'PileUp_2012_69300_truth_finebin.root',
             'MuonScaleFactors':'nofile.root',
             'PUFile':'noFile.root',
+            'TTbarLikelihoodInputFile' : 'noFile.root',
             'BTagSystematic':0,
             'LightTagSystematic':0,
             'custom_file_suffix':'',
@@ -103,6 +104,9 @@ getHadronTriggerFromFile = True
 hadronTriggerFile = ''
 ElectronScaleFactorSystematic = settings['ElectronScaleFactorSystematic']
 MuonScaleFactorSystematic = settings['MuonScaleFactorSystematic']
+
+TTbarLikelihoodInputFile = toolsFolder + "/data/LikelihoodInputAnalyserOutput.root"
+
 #JES Systematic, the +/- number of uncertainties to vary the jets with
 JESsystematic = settings['JESsystematic']
 JetSmearingSystematic = settings['JetSmearingSystematic']

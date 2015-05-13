@@ -29,6 +29,7 @@ ConfigFile::ConfigFile(int argc, char **argv) :
 		maxEvents_(PythonParser::getAttributeFromPyObject<long>(config, "maxEvents")), //
 		datasetInfoFile_(PythonParser::getAttributeFromPyObject<string>(config, "datasetInfoFile")), //
 		pileUpFile_(PythonParser::getAttributeFromPyObject<string>(config, "PUFile")), //
+		ttbarLikelihoodFile_(PythonParser::getAttributeFromPyObject<string>(config, "TTbarLikelihoodInputFile")), //
 		getMuonScaleFactorsFromFile_(PythonParser::getAttributeFromPyObject<bool>(config, "getMuonScaleFactorsFromFile")), //
 		muonScaleFactorsFile_(PythonParser::getAttributeFromPyObject<string>(config, "MuonScaleFactorsFile")), //
 		getElectronScaleFactorsFromFile_(PythonParser::getAttributeFromPyObject<bool>(config, "getElectronScaleFactorsFromFile")), //
@@ -101,6 +102,7 @@ boost::program_options::variables_map ConfigFile::getParameters(int argc, char**
 	desc.add_options()("datasetInfoFile", value<std::string>(),
 			"Dataset information file for event weight calculation");
 	desc.add_options()("PUFile", value<std::string>(), "set input PU file for PU re-weighting");
+	desc.add_options()("TTbarLikelihoodInputFile", value<std::string>(), "set input file for ttbar likelihood reconstruction");
 	desc.add_options()("getMuonScaleFactorsFromFile", value<bool>(), "state whether we are getting the muon scale factors from a file or not");
 	desc.add_options()("MuonScaleFactorsFile", value<std::string>(), "set input file for muon scale factors");
 	desc.add_options()("getElectronScaleFactorsFromFile", value<bool>(), "state whether we are getting the electron scale factors from a file or not");
@@ -203,6 +205,13 @@ string ConfigFile::configPath() const {
 string ConfigFile::PUFile() const {
 	if (programOptions.count("PUFile"))
 		return programOptions["PUFile"].as<std::string>();
+	else
+		return pileUpFile_;
+}
+
+string ConfigFile::TTbarLikelihoodFile() const {
+	if (programOptions.count("TTbarLikelihoodFile"))
+		return programOptions["TTbarLikelihoodFile"].as<std::string>();
 	else
 		return pileUpFile_;
 }
@@ -463,6 +472,8 @@ void ConfigFile::loadIntoMemory() {
 		std::cout << "No electron trigger hadron leg efficiencies file, corrections will be set to 1." << std::endl;
 	}
 
+	getCSVCorrectPermHistogram( TTbarLikelihoodFile() );
+
 	//JES systematic
 	Globals::JESsystematic = jesSystematic();
 
@@ -586,6 +597,21 @@ void ConfigFile::getHadronTriggerLegHistogram(std::string hadronTriggerFile) {
 
 	file->Close();
 }
+
+void ConfigFile::getCSVCorrectPermHistogram(std::string ttbarLikelihoodFile) {
+	using namespace std;
+
+	if (!boost::filesystem::exists(ttbarLikelihoodFile)) {
+		cerr << "ConfigFile::getCSVCorrectPermHistogram(" << ttbarLikelihoodFile << "): could not find file" << endl;
+		throw "Could not find file " + ttbarLikelihoodFile;
+	}
+
+	boost::scoped_ptr<TFile> file(TFile::Open(ttbarLikelihoodFile.c_str()));
+	Globals::csvCorrectPermHistogram = (boost::shared_ptr<TH1F>) (TH1F*) file->Get("CSV for BJets")->Clone();
+	file->Close();
+}
+
+
 
 unsigned int ConfigFile::nTupleVersion() const {
 	return nTupleVersion_;

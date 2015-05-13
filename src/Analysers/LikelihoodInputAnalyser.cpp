@@ -7,7 +7,6 @@
 #include "../../interface/Analysers/LikelihoodInputAnalyser.h"
 #include "../../interface/GlobalVariables.h"
 #include <boost/scoped_ptr.hpp>
-#include "../Rochester/NeutrinoSolver.cc"
 
 using namespace BAT;
 
