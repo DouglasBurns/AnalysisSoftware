@@ -10,26 +10,28 @@
 
 #include <boost/shared_ptr.hpp>
 #include "../TtbarHypothesis.h"
+#include "../../interface/GlobalVariables.h"
+#include <iostream>
 
 namespace BAT {
 
 class LikelihoodBasedTopPairReconstruction {
 public:
-	LikelihoodBasedTopPairReconstruction(const LeptonPointer lepton, const METPointer met, const JetCollection jets);
+	LikelihoodBasedTopPairReconstruction(const LeptonPointer lepton, const METPointer met, const JetCollection jets, const JetCollection bjets);
 	virtual ~LikelihoodBasedTopPairReconstruction();
 	virtual const TtbarHypothesisPointer getBestSolution();
 	virtual TtbarHypothesisCollection getAllSolutions();
 	virtual bool meetsInitialCriteria() const;
 	virtual std::string getDetailsOnFailure() const;
+	virtual void reconstruct();
 
 protected:
 	virtual double getDiscriminator(const TtbarHypothesisPointer) const;
-	virtual void reconstruct();
-	virtual bool meetsHadronicBJetRequirement(unsigned short jetIndex);
-	virtual bool meetsLeptonicBJetRequirement(unsigned short jetIndex);
-	virtual bool meetsJetFromWRequirement(unsigned short jet1Index, unsigned short jet2Index);
+	virtual bool meetsHadronicBJetRequirement(JetPointer hadBJet);
+	virtual bool meetsLeptonicBJetRequirement(JetPointer lepBJet);
+	virtual bool meetsJetFromWRequirement(JetPointer jet1, JetPointer jet2);
 	virtual bool meetsGlobalRequirement(const TtbarHypothesisPointer solution);
-	virtual ParticlePointer getNeutrinoSolution();
+	virtual ParticlePointer getNeutrinoSolution( double& neutrinoChi2 );
 //	virtual void throwDetailedException() const;
 
 protected:
@@ -37,10 +39,11 @@ protected:
 	bool alreadyReconstructed;
 	METPointer met;
 	JetCollection jets;
+	JetCollection bjets;
 	LeptonPointer leptonFromW;
 };
 
-typedef boost::shared_ptr<LikelihoodBasedTopPairReconstruction> TopPairReconstruction;
+typedef boost::shared_ptr<LikelihoodBasedTopPairReconstruction> LikelihoodReconstructionPtr;
 
 } /* namespace BAT */
 #endif /* LIKELIHOODBASEDTOPPAIRRECONSTRUCTION_H_ */

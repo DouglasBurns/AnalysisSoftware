@@ -1,29 +1,31 @@
 /*
- * BasicTopPairReconstruction.cpp
+ * LikelihoodBasedTopPairReconstruction.cpp
  *
  *  Created on: 25 Aug 2011
  *      Author: kreczko
  */
 
-#include "../../interface/ReconstructionModules/BasicTopPairReconstruction.h"
-#include "../../interface/ReconstructionModules/BasicNeutrinoReconstruction.h"
+#include "../../interface/ReconstructionModules/LikelihoodBasedTopPairReconstruction.h"
 #include <boost/lexical_cast.hpp>
+
+using namespace std;
 
 namespace BAT {
 
-BasicTopPairReconstruction::BasicTopPairReconstruction(const LeptonPointer lepton, const METPointer met, const JetCollection jets):
+LikelihoodBasedTopPairReconstruction::LikelihoodBasedTopPairReconstruction(const LeptonPointer lepton, const METPointer met, const JetCollection jets, const JetCollection bjets):
 		solutions(),
 		alreadyReconstructed(false),
 		met(met),
 		jets(jets),
+		bjets(bjets),
 		leptonFromW(lepton) {
 }
 
-bool BasicTopPairReconstruction::meetsInitialCriteria() const {
+bool LikelihoodBasedTopPairReconstruction::meetsInitialCriteria() const {
 	return met != 0 && leptonFromW != 0 && jets.size() >= 4;
 }
 
-std::string BasicTopPairReconstruction::getDetailsOnFailure() const {
+std::string LikelihoodBasedTopPairReconstruction::getDetailsOnFailure() const {
 	std::string msg = "Initial Criteria not met: \n";
 	if (leptonFromW == 0)
 		msg += "Electron from W: not filled \n";
@@ -45,10 +47,10 @@ std::string BasicTopPairReconstruction::getDetailsOnFailure() const {
 
 
 
-BasicTopPairReconstruction::~BasicTopPairReconstruction() {
+LikelihoodBasedTopPairReconstruction::~LikelihoodBasedTopPairReconstruction() {
 }
 
-TtbarHypothesisCollection BasicTopPairReconstruction::getAllSolutions(){
+TtbarHypothesisCollection LikelihoodBasedTopPairReconstruction::getAllSolutions(){
 	if(!alreadyReconstructed)
 		reconstruct();
 
@@ -57,55 +59,59 @@ TtbarHypothesisCollection BasicTopPairReconstruction::getAllSolutions(){
 	return solutions;
 }
 
-const TtbarHypothesisPointer BasicTopPairReconstruction::getBestSolution() {
+const TtbarHypothesisPointer LikelihoodBasedTopPairReconstruction::getBestSolution() {
 	const TtbarHypothesisPointer bestSolution = getAllSolutions().front();//sorted by quality, front == best
 	return bestSolution;
 }
 
-void BasicTopPairReconstruction::reconstruct() {
-	boost::array<ParticlePointer, 2> neutrinos = getNeutrinos();
+void LikelihoodBasedTopPairReconstruction::reconstruct() {
 	typedef unsigned short ushort;
 
-	for (ushort neutrinoIndex = 0; neutrinoIndex < neutrinos.size(); ++neutrinoIndex) {
-		ParticlePointer neutrino = neutrinos.at(neutrinoIndex);
-		for (ushort hadBindex = 0; hadBindex < jets.size(); ++hadBindex) {
-			if (!meetsHadronicBJetRequirement(hadBindex))
+	// Loop b jets to get hadronic b candidate
+	for (ushort hadBindex = 0; hadBindex < bjets.size(); ++hadBindex) {
+		JetPointer hadBJet = bjets[hadBindex];
+		if (!meetsHadronicBJetRequirement(hadBJet))
+			continue;
+		// Loop b jets to get leptonic b candidate
+		for (ushort lepBindex = 0; lepBindex < bjets.size(); ++lepBindex) {
+			JetPointer lepBJet = bjets[lepBindex];
+			if (lepBindex == hadBindex || !meetsLeptonicBJetRequirement(lepBJet))
 				continue;
 
-			for (ushort lepBindex = 0; lepBindex < jets.size(); ++lepBindex) {
-				if (lepBindex == hadBindex || !meetsLeptonicBJetRequirement(lepBindex))
-					continue;
+			// Loop light jets to get jets from W
+			for (ushort jet1Index = 0; jet1Index < jets.size(); ++jet1Index) {
+				for (ushort jet2Index = 0; jet2Index < jets.size(); ++jet2Index) {
+					JetPointer jet1FromW = jets[hadBindex];
+					JetPointer jet2FromW = jets[hadBindex];
 
-				for (ushort jet1Index = 0; jet1Index < jets.size(); ++jet1Index) {
-					if (jet1Index == hadBindex || jet1Index == lepBindex)
+					if (jet2Index == jet1Index || !meetsJetFromWRequirement(jet1FromW, jet2FromW))
 						continue;
 
-					for (ushort jet2Index = 0; jet2Index < jets.size(); ++jet2Index) {
-						if (jet2Index == hadBindex || jet2Index == lepBindex
-								|| !meetsJetFromWRequirement(jet1Index, jet2Index))
-							continue;
-						TtbarHypothesisPointer solution(new TtbarHypothesis());
-						//leptons
-						solution->leptonFromW = leptonFromW;
-						solution->neutrinoFromW = neutrino;
-						//jets
-						solution->hadronicBJet = jets.at(hadBindex);
-						solution->leptonicBjet = jets.at(lepBindex);
-						solution->jet1FromW = jets.at(jet1Index);
-						solution->jet2FromW = jets.at(jet2Index);
+					// Put all particles together
+					TtbarHypothesisPointer solution(new TtbarHypothesis());
+					//leptons
+					solution->leptonFromW = leptonFromW;
+					double neutrinoChi2 = -1;
+					solution->neutrinoFromW = getNeutrinoSolution( neutrinoChi2 );
+					//jets
+					solution->hadronicBJet = hadBJet;
+					solution->leptonicBjet = lepBJet;
+					solution->jet1FromW = jet1FromW;
+					solution->jet2FromW = jet2FromW;
 
-						//combine reconstructed objects
-						solution->combineReconstructedObjects();
+					//combine reconstructed objects
+					solution->combineReconstructedObjects();
 
-						solution->discriminator = getDiscriminator(solution);
+					// Get discrimnant for this solution
+					solution->discriminator = getDiscriminator(solution);
 
-						if (meetsGlobalRequirement(solution)){
-							solutions.push_back(solution);
-						}
-
-						else
-							continue;
+					// Store if event is physical (checks masses of tops and Ws > 0 )
+					if (meetsGlobalRequirement(solution)){
+						solutions.push_back(solution);
 					}
+
+					else
+						continue;
 				}
 			}
 		}
@@ -114,28 +120,37 @@ void BasicTopPairReconstruction::reconstruct() {
 }
 
 
-boost::array<ParticlePointer, 2> BasicTopPairReconstruction::getNeutrinos() {
-	BasicNeutrinoReconstruction neutrinoReconstruction(leptonFromW, met);
-	return neutrinoReconstruction.getNeutrinos(NeutrinoSelection::None);
+ParticlePointer LikelihoodBasedTopPairReconstruction::getNeutrinoSolution( double& neutrinoChi2) {
+	// Do the neutrino reconstruction
+	return ParticlePointer( new Particle(1,1,1,1));
 }
 
-bool BasicTopPairReconstruction::meetsHadronicBJetRequirement(unsigned short jetIndex){
+bool LikelihoodBasedTopPairReconstruction::meetsHadronicBJetRequirement(JetPointer hadBJet){
 	return true;
 }
 
-bool BasicTopPairReconstruction::meetsLeptonicBJetRequirement(unsigned short jetIndex){
+bool LikelihoodBasedTopPairReconstruction::meetsLeptonicBJetRequirement(JetPointer lepBJet){
 	return true;
 }
 
-bool BasicTopPairReconstruction::meetsJetFromWRequirement(unsigned short jet1Index, unsigned short jet2Index){
-	return jet1Index != jet2Index;// == require 4 jets
+bool LikelihoodBasedTopPairReconstruction::meetsJetFromWRequirement(JetPointer jet1, JetPointer jet2){
+	return true;
 }
 
-bool BasicTopPairReconstruction::meetsGlobalRequirement(const TtbarHypothesisPointer solution){
+bool LikelihoodBasedTopPairReconstruction::meetsGlobalRequirement(const TtbarHypothesisPointer solution){
 	return solution->isPhysical();
 }
 
-double BasicTopPairReconstruction::getDiscriminator(const TtbarHypothesisPointer solution) const{
+double LikelihoodBasedTopPairReconstruction::getDiscriminator(const TtbarHypothesisPointer solution) const{
+	// Given all the info for this solution/permutation, calculate the discriminant
+
+	// Print csv of hadronic b jet and probablitity from correct b histogram
+	JetPointer hadBJet = solution->hadronicBJet;
+	double hadBJetCSV = hadBJet->getBTagDiscriminator(BAT::BtagAlgorithm::value::CombinedSecondaryVertexV2);
+
+	double probCorrectB = Globals::csvCorrectPermHistogram->Interpolate( hadBJetCSV );
+	cout << "CSV : " << hadBJetCSV << " prob : " << probCorrectB << endl;
+
 	return 0;
 }
 
