@@ -96,6 +96,8 @@ void TTbar_plus_X_analyser::ePlusJetsSignalAnalysis(const EventPtr event) {
 		// BAT::TtbarHypothesis topHypothesis = hitFitAnalyserEPlusJetsRefSelection_->analyseAndReturn(event, jets, bJets, signalLepton );
 		// event->setTTbarHypothesis( topHypothesis );
 
+		likelihoodRecoAnalyserEPlusJetsRefSelection_->analyse(event, jets, bJets, signalLepton, MET_main);
+
 		// ref_selection_binned_HT_analyser_electron_->setScale(bjetWeight * efficiencyCorrection);
 
 		vector<double> fit_variable_values;
@@ -709,6 +711,12 @@ void TTbar_plus_X_analyser::createHistograms() {
 
 	hitFitAnalyserEPlusJetsRefSelection_->createHistograms();
 	hitFitAnalyserMuPlusJetsRefSelection_->createHistograms();
+
+	likelihoodRecoAnalyserEPlusJetsRefSelection_->createHistograms();
+	likelihoodRecoAnalyserMuPlusJetsRefSelection_->createHistograms();
+	likelihoodRecoAnalyserEPlusJetsRefSelection_->createTrees();
+	likelihoodRecoAnalyserMuPlusJetsRefSelection_->createTrees();
+
 }
 
 TTbar_plus_X_analyser::TTbar_plus_X_analyser(HistogramManagerPtr histMan, TreeManagerPtr treeMan, std::string histogramFolder) :
@@ -868,6 +876,8 @@ TTbar_plus_X_analyser::TTbar_plus_X_analyser(HistogramManagerPtr histMan, TreeMa
 		wAnalyserMuPlusJetsRefSelection_(new WAnalyser(histMan, treeMan, histogramFolder + "/MuPlusJets/Ref selection/W Bosons")), //
 		hitFitAnalyserEPlusJetsRefSelection_(new HitFitAnalyser(histMan, true, histogramFolder + "/EPlusJets/Ref selection/HitFit")), //
 		hitFitAnalyserMuPlusJetsRefSelection_(new HitFitAnalyser(histMan, false, histogramFolder + "/MuPlusJets/Ref selection/HitFit")), //
+		likelihoodRecoAnalyserEPlusJetsRefSelection_(new LikelihoodRecoAnalyser(histMan, treeMan, true, histogramFolder + "/EPlusJets/Ref selection/LikelihoodReco")), //
+		likelihoodRecoAnalyserMuPlusJetsRefSelection_(new LikelihoodRecoAnalyser(histMan, treeMan, false, histogramFolder + "/MuPlusJets/Ref selection/LikelihoodReco")), //
 		electron_variables_(), //
 		muon_variables_() {
 
