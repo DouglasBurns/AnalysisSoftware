@@ -29,7 +29,7 @@ ConfigFile::ConfigFile(int argc, char **argv) :
 		maxEvents_(PythonParser::getAttributeFromPyObject<long>(config, "maxEvents")), //
 		datasetInfoFile_(PythonParser::getAttributeFromPyObject<string>(config, "datasetInfoFile")), //
 		pileUpFile_(PythonParser::getAttributeFromPyObject<string>(config, "PUFile")), //
-		ttbarLikelihoodFile_(PythonParser::getAttributeFromPyObject<string>(config, "TTbarLikelihoodInputFile")), //
+		ttbarLikelihoodFile_(PythonParser::getAttributeFromPyObject<string>(config, "TTbarLikelihoodFile")), //
 		getMuonScaleFactorsFromFile_(PythonParser::getAttributeFromPyObject<bool>(config, "getMuonScaleFactorsFromFile")), //
 		muonScaleFactorsFile_(PythonParser::getAttributeFromPyObject<string>(config, "MuonScaleFactorsFile")), //
 		getElectronScaleFactorsFromFile_(PythonParser::getAttributeFromPyObject<bool>(config, "getElectronScaleFactorsFromFile")), //
@@ -102,7 +102,7 @@ boost::program_options::variables_map ConfigFile::getParameters(int argc, char**
 	desc.add_options()("datasetInfoFile", value<std::string>(),
 			"Dataset information file for event weight calculation");
 	desc.add_options()("PUFile", value<std::string>(), "set input PU file for PU re-weighting");
-	desc.add_options()("TTbarLikelihoodInputFile", value<std::string>(), "set input file for ttbar likelihood reconstruction");
+	desc.add_options()("TTbarLikelihoodFile", value<std::string>(), "set input file for ttbar likelihood reconstruction");
 	desc.add_options()("getMuonScaleFactorsFromFile", value<bool>(), "state whether we are getting the muon scale factors from a file or not");
 	desc.add_options()("MuonScaleFactorsFile", value<std::string>(), "set input file for muon scale factors");
 	desc.add_options()("getElectronScaleFactorsFromFile", value<bool>(), "state whether we are getting the electron scale factors from a file or not");
@@ -213,7 +213,7 @@ string ConfigFile::TTbarLikelihoodFile() const {
 	if (programOptions.count("TTbarLikelihoodFile"))
 		return programOptions["TTbarLikelihoodFile"].as<std::string>();
 	else
-		return pileUpFile_;
+		return ttbarLikelihoodFile_;
 }
 
 string ConfigFile::MuonScaleFactorsFile() const {
