@@ -65,7 +65,6 @@ void LikelihoodRecoAnalyser::analyse(const EventPtr event, const JetCollection j
 		else if ( event->PassesMuonTriggerAndSelection() && event->isSemiLeptonicMuon() ) selectionCriteria = SelectionCriteria::MuonPlusJetsReference;
 		if ( selectionCriteria < 0 ) {
 			TypeofSolution = 4;
-			treeMan_->Fill("TypeofSolution", TypeofSolution );
 		}
 
 
@@ -93,9 +92,8 @@ void LikelihoodRecoAnalyser::analyse(const EventPtr event, const JetCollection j
 			}
 		}
 		// cout << "-------------------" << endl;
-		if ( ttbarpartonsfound != 4 ){
+		if ( ttbarpartonsfound != 4 && TypeofSolution == 0){
 			TypeofSolution = 3;
-			treeMan_->Fill("TypeofSolution", TypeofSolution);
 		}
 
 		double Discrim = bestSolution->discriminator;
@@ -110,23 +108,18 @@ void LikelihoodRecoAnalyser::analyse(const EventPtr event, const JetCollection j
 
 
 
-		if (bestSolution->isCorrect()){
-			if (TypeofSolution == 0){
-				TypeofSolution = 1;
-				treeMan_->Fill("TypeofSolution", TypeofSolution);
-			}
-			
+		if (bestSolution->isCorrect() && TypeofSolution == 0){
+			TypeofSolution = 1;
 			EventCorrect = 1;
-			treeMan_->Fill("EventReconstruction", EventCorrect);
 		}
 
 		else{
 			if (TypeofSolution == 0){
 				TypeofSolution = 2;
-				treeMan_->Fill("TypeofSolution", TypeofSolution);
 			}
-			treeMan_->Fill("EventReconstruction", EventCorrect);
 		}
+		treeMan_->Fill("EventReconstruction", EventCorrect);
+		treeMan_->Fill("TypeofSolution", TypeofSolution);
 
 
 

@@ -38,7 +38,7 @@ void LikelihoodInputAnalyser::analyse(const EventPtr event) {
 
 			if ( abs(CSV) >= 11 ){
 				// cout << "CSV : " << CSV << " Run Number : " << event->runnumber() << " Event Number : " << event->eventnumber() << " Lumi Number : " << event->lumiblock() << endl;
-				// event->inspect(); //For more info on events failing
+				// event->inspect(); //For more info on events failing CSV
 				continue;
 				}
 
