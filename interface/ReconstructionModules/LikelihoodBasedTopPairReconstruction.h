@@ -11,6 +11,7 @@
 #include <boost/shared_ptr.hpp>
 #include "../TtbarHypothesis.h"
 #include "../../interface/GlobalVariables.h"
+#include "../Rochester/NeutrinoSolver.h"
 #include <iostream>
 
 namespace BAT {
@@ -31,7 +32,7 @@ protected:
 	virtual bool meetsLeptonicBJetRequirement(JetPointer lepBJet);
 	virtual bool meetsJetFromWRequirement(JetPointer jet1, JetPointer jet2);
 	virtual bool meetsGlobalRequirement(const TtbarHypothesisPointer solution);
-	virtual ParticlePointer getNeutrinoSolution( double& neutrinoChi2 );
+	virtual ParticlePointer getNeutrinoSolution( JetPointer BJet, LeptonPointer Lepton, METPointer met, double& neutrinoChi2 );
 //	virtual void throwDetailedException() const;
 
 protected:

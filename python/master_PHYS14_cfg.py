@@ -133,7 +133,10 @@ for setting,value in settings.iteritems():
     print setting, '=', value
 
 #number of events to be processed
-maxEvents = 0# 0 == all
+
+maxEvents = 0100000# 0 == all
+
+
 
 #Jet Energy Resolutions files (L7 corrections)
 bJetResoFile = toolsFolder + "data/bJetReso.root"

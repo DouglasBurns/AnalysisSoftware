@@ -472,7 +472,20 @@ void ConfigFile::loadIntoMemory() {
 		std::cout << "No electron trigger hadron leg efficiencies file, corrections will be set to 1." << std::endl;
 	}
 
+
+
 	getCSVCorrectPermHistogram( TTbarLikelihoodFile() );
+	getCSVIncorrectPermHistogram( TTbarLikelihoodFile() );
+
+	getNuChiCorrectPermHistogram( TTbarLikelihoodFile() );
+	getNuChiIncorrectPermHistogram( TTbarLikelihoodFile() );
+
+	getHadronicRecoCorrectPermHistogram( TTbarLikelihoodFile() );
+	getHadronicRecoIncorrectPermHistogram( TTbarLikelihoodFile() );
+	getLeptonicRecoCorrectPermHistogram( TTbarLikelihoodFile() );
+	getLeptonicRecoIncorrectPermHistogram( TTbarLikelihoodFile() );
+
+
 
 	//JES systematic
 	Globals::JESsystematic = jesSystematic();
@@ -598,6 +611,9 @@ void ConfigFile::getHadronTriggerLegHistogram(std::string hadronTriggerFile) {
 	file->Close();
 }
 
+
+
+
 void ConfigFile::getCSVCorrectPermHistogram(std::string ttbarLikelihoodFile) {
 	using namespace std;
 
@@ -610,6 +626,105 @@ void ConfigFile::getCSVCorrectPermHistogram(std::string ttbarLikelihoodFile) {
 	Globals::csvCorrectPermHistogram = (boost::shared_ptr<TH1F>) (TH1F*) file->Get("CSV for BJets")->Clone();
 	file->Close();
 }
+
+void ConfigFile::getCSVIncorrectPermHistogram(std::string ttbarLikelihoodFile) {
+	using namespace std;
+
+	if (!boost::filesystem::exists(ttbarLikelihoodFile)) {
+		cerr << "ConfigFile::getCSVIncorrectPermHistogram(" << ttbarLikelihoodFile << "): could not find file" << endl;
+		throw "Could not find file " + ttbarLikelihoodFile;
+	}
+
+	boost::scoped_ptr<TFile> file(TFile::Open(ttbarLikelihoodFile.c_str()));
+	Globals::csvIncorrectPermHistogram = (boost::shared_ptr<TH1F>) (TH1F*) file->Get("CSV for LightJets")->Clone();
+	file->Close();
+}
+
+void ConfigFile::getNuChiCorrectPermHistogram(std::string ttbarLikelihoodFile) {
+	using namespace std;
+
+	if (!boost::filesystem::exists(ttbarLikelihoodFile)) {
+		cerr << "ConfigFile::getNuChiCorrectPermHistogram(" << ttbarLikelihoodFile << "): could not find file" << endl;
+		throw "Could not find file " + ttbarLikelihoodFile;
+	}
+
+	boost::scoped_ptr<TFile> file(TFile::Open(ttbarLikelihoodFile.c_str()));
+	Globals::NuChiCorrectPermHistogram = (boost::shared_ptr<TH1F>) (TH1F*) file->Get("NeutrinoChiSqLeptonicB")->Clone();
+	file->Close();
+}
+
+void ConfigFile::getNuChiIncorrectPermHistogram(std::string ttbarLikelihoodFile) {
+	using namespace std;
+
+	if (!boost::filesystem::exists(ttbarLikelihoodFile)) {
+		cerr << "ConfigFile::getNuChiIncorrectPermHistogram(" << ttbarLikelihoodFile << "): could not find file" << endl;
+		throw "Could not find file " + ttbarLikelihoodFile;
+	}
+
+	boost::scoped_ptr<TFile> file(TFile::Open(ttbarLikelihoodFile.c_str()));
+	Globals::NuChiIncorrectPermHistogram = (boost::shared_ptr<TH1F>) (TH1F*) file->Get("NeutrinoChiSqFalseB")->Clone();
+	file->Close();
+}
+
+
+void ConfigFile::getHadronicRecoCorrectPermHistogram(std::string ttbarLikelihoodFile) {
+	using namespace std;
+
+	if (!boost::filesystem::exists(ttbarLikelihoodFile)) {
+		cerr << "ConfigFile::getHadronicRecoCorrectPermHistogram(" << ttbarLikelihoodFile << "): could not find file" << endl;
+		throw "Could not find file " + ttbarLikelihoodFile;
+	}
+
+	boost::scoped_ptr<TFile> file(TFile::Open(ttbarLikelihoodFile.c_str()));
+	Globals::HadronicRecoCorrectPermHistogram = (boost::shared_ptr<TH2F>) (TH2F*) file->Get("MT vs MW True Reconstructed B(hadronic)")->Clone();
+	file->Close();
+}
+
+
+void ConfigFile::getHadronicRecoIncorrectPermHistogram(std::string ttbarLikelihoodFile) {
+	using namespace std;
+
+	if (!boost::filesystem::exists(ttbarLikelihoodFile)) {
+		cerr << "ConfigFile::getHadronicRecoIncorrectPermHistogram(" << ttbarLikelihoodFile << "): could not find file" << endl;
+		throw "Could not find file " + ttbarLikelihoodFile;
+	}
+
+	boost::scoped_ptr<TFile> file(TFile::Open(ttbarLikelihoodFile.c_str()));
+	Globals::HadronicRecoIncorrectPermHistogram = (boost::shared_ptr<TH2F>) (TH2F*) file->Get("MT vs MW False Reconstructed B(hadronic)")->Clone();
+	file->Close();
+}
+
+
+void ConfigFile::getLeptonicRecoCorrectPermHistogram(std::string ttbarLikelihoodFile) {
+	using namespace std;
+
+	if (!boost::filesystem::exists(ttbarLikelihoodFile)) {
+		cerr << "ConfigFile::getLeptonicRecoCorrectPermHistogram(" << ttbarLikelihoodFile << "): could not find file" << endl;
+		throw "Could not find file " + ttbarLikelihoodFile;
+	}
+
+	boost::scoped_ptr<TFile> file(TFile::Open(ttbarLikelihoodFile.c_str()));
+	Globals::LeptonicRecoCorrectPermHistogram = (boost::shared_ptr<TH2F>) (TH2F*) file->Get("MT vs MW True Reconstructed B(leptonic)")->Clone();
+	file->Close();
+}
+
+
+void ConfigFile::getLeptonicRecoIncorrectPermHistogram(std::string ttbarLikelihoodFile) {
+	using namespace std;
+
+	if (!boost::filesystem::exists(ttbarLikelihoodFile)) {
+		cerr << "ConfigFile::getLeptonicRecoIncorrectPermHistogram(" << ttbarLikelihoodFile << "): could not find file" << endl;
+		throw "Could not find file " + ttbarLikelihoodFile;
+	}
+
+	boost::scoped_ptr<TFile> file(TFile::Open(ttbarLikelihoodFile.c_str()));
+	Globals::LeptonicRecoIncorrectPermHistogram = (boost::shared_ptr<TH2F>) (TH2F*) file->Get("MT vs MW False Reconstructed B(leptonic)")->Clone();
+	file->Close();
+}
+
+
+
+
 
 
 

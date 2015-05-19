@@ -70,6 +70,9 @@ void LikelihoodBasedTopPairReconstruction::reconstruct() {
 	// Loop b jets to get hadronic b candidate
 	for (ushort hadBindex = 0; hadBindex < bjets.size(); ++hadBindex) {
 		JetPointer hadBJet = bjets[hadBindex];
+		LeptonPointer signallepton = leptonFromW;
+		METPointer MET = met;
+
 		if (!meetsHadronicBJetRequirement(hadBJet))
 			continue;
 		// Loop b jets to get leptonic b candidate
@@ -79,10 +82,15 @@ void LikelihoodBasedTopPairReconstruction::reconstruct() {
 				continue;
 
 			// Loop light jets to get jets from W
-			for (ushort jet1Index = 0; jet1Index < jets.size(); ++jet1Index) {
-				for (ushort jet2Index = 0; jet2Index < jets.size(); ++jet2Index) {
-					JetPointer jet1FromW = jets[hadBindex];
-					JetPointer jet2FromW = jets[hadBindex];
+
+
+			for ( ushort jet1Index=0; jet1Index < (jets.size()-1); ++jet1Index ) {
+				for ( ushort jet2Index=jet1Index+1; jet2Index < jets.size(); ++jet2Index ) {
+
+			// for (ushort jet1Index = 0; jet1Index < jets.size(); ++jet1Index) {
+			// 	for (ushort jet2Index = 0; jet2Index < jets.size(); ++jet2Index) {
+					JetPointer jet1FromW = jets[jet1Index];
+					JetPointer jet2FromW = jets[jet2Index];
 
 					if (jet2Index == jet1Index || !meetsJetFromWRequirement(jet1FromW, jet2FromW))
 						continue;
@@ -91,8 +99,10 @@ void LikelihoodBasedTopPairReconstruction::reconstruct() {
 					TtbarHypothesisPointer solution(new TtbarHypothesis());
 					//leptons
 					solution->leptonFromW = leptonFromW;
-					double neutrinoChi2 = -1;
-					solution->neutrinoFromW = getNeutrinoSolution( neutrinoChi2 );
+					double nuChi2 = -1;
+					solution->neutrinoFromW = getNeutrinoSolution( lepBJet, signallepton, MET, nuChi2 );
+					solution->neutrinoChi2 = nuChi2;
+
 					//jets
 					solution->hadronicBJet = hadBJet;
 					solution->leptonicBjet = lepBJet;
@@ -104,6 +114,7 @@ void LikelihoodBasedTopPairReconstruction::reconstruct() {
 
 					// Get discrimnant for this solution
 					solution->discriminator = getDiscriminator(solution);
+
 
 					// Store if event is physical (checks masses of tops and Ws > 0 )
 					if (meetsGlobalRequirement(solution)){
@@ -120,9 +131,14 @@ void LikelihoodBasedTopPairReconstruction::reconstruct() {
 }
 
 
-ParticlePointer LikelihoodBasedTopPairReconstruction::getNeutrinoSolution( double& neutrinoChi2) {
+ParticlePointer LikelihoodBasedTopPairReconstruction::getNeutrinoSolution(JetPointer BJet, LeptonPointer Lepton, METPointer met, double& neutrinoChi2) {
 	// Do the neutrino reconstruction
-	return ParticlePointer( new Particle(1,1,1,1));
+	NeutrinoSolver neutrinoSolver( &(Lepton->getFourVector()), &(BJet->getFourVector()), 80, 173 );
+	double test = -1;
+	FourVector neutrino = neutrinoSolver.GetBest(met->getFourVector().Px(), met->getFourVector().Py(), 25., 25., 0., test );
+	neutrinoChi2 = test;
+
+	return ParticlePointer (new Particle(neutrino.Energy(), neutrino.Px(), neutrino.Py(), neutrino.Pz()));
 }
 
 bool LikelihoodBasedTopPairReconstruction::meetsHadronicBJetRequirement(JetPointer hadBJet){
@@ -143,15 +159,91 @@ bool LikelihoodBasedTopPairReconstruction::meetsGlobalRequirement(const TtbarHyp
 
 double LikelihoodBasedTopPairReconstruction::getDiscriminator(const TtbarHypothesisPointer solution) const{
 	// Given all the info for this solution/permutation, calculate the discriminant
+	// cout << "------------------------------------------------------" << endl;
 
 	// Print csv of hadronic b jet and probablitity from correct b histogram
 	JetPointer hadBJet = solution->hadronicBJet;
+	JetPointer lepBJet = solution->leptonicBjet;
+	ParticlePointer hadTop = solution->hadronicTop;
+	ParticlePointer lepTop = solution->leptonicTop;
+	ParticlePointer hadW = solution->hadronicW;
+	ParticlePointer lepW = solution->leptonicW;
+
+	double NeutrinoChi2 = solution->neutrinoChi2;
+
 	double hadBJetCSV = hadBJet->getBTagDiscriminator(BAT::BtagAlgorithm::value::CombinedSecondaryVertexV2);
+	double lepBJetCSV = lepBJet->getBTagDiscriminator(BAT::BtagAlgorithm::value::CombinedSecondaryVertexV2);
 
-	double probCorrectB = Globals::csvCorrectPermHistogram->Interpolate( hadBJetCSV );
-	cout << "CSV : " << hadBJetCSV << " prob : " << probCorrectB << endl;
+	double Wmass = hadW->mass();
+	double Topmass = hadTop->mass();
 
-	return 0;
+
+	double probCorrectHadB = Globals::csvCorrectPermHistogram->Interpolate( hadBJetCSV );
+	double probIncorrectHadB = Globals::csvIncorrectPermHistogram->Interpolate( hadBJetCSV );
+
+	double probCorrectLepB = Globals::csvCorrectPermHistogram->Interpolate( lepBJetCSV );
+	double probIncorrectLepB = Globals::csvIncorrectPermHistogram->Interpolate( lepBJetCSV );
+
+	double probCorrectNuChi2 = Globals::NuChiCorrectPermHistogram->Interpolate( NeutrinoChi2 );
+	double probIncorrectNuChi2 = Globals::NuChiIncorrectPermHistogram->Interpolate( NeutrinoChi2 );
+
+	double probCorrectWBMass = Globals::HadronicRecoCorrectPermHistogram->Interpolate( Wmass , Topmass );
+	double probIncorrectWBMass = Globals::HadronicRecoIncorrectPermHistogram->Interpolate( Wmass , Topmass );
+
+	if (probCorrectWBMass == 0){
+		probCorrectWBMass = 0.000000001;
+	}
+	if (probIncorrectWBMass == 0){
+		probIncorrectWBMass = 0.000000001;
+	}
+
+	double NuChi2Disc =  - log(probCorrectNuChi2/probIncorrectNuChi2);
+	double CSVDisc = - log((probCorrectHadB/probIncorrectHadB)*(probCorrectLepB/probIncorrectLepB));
+	double MassDisc = - log(probCorrectWBMass/probIncorrectWBMass);
+	double likelihoodratio = 20;
+	// cout << "Mass Hadronic T : " << hadTop->mass() << ", Mass Hadronic W : " << hadW->getFourVector().M() << endl;
+	// cout << "Mass Leptonic T : " << lepTop->getFourVector().M() << ", Mass Leptonic W : " << lepW->getFourVector().M() << endl;
+	// cout << "Neutrino Chi Sq : " << NeutrinoChi2 << endl;
+
+	if (NeutrinoChi2 >= 0.0 && Wmass <= 490 && Topmass <= 490){
+
+
+		solution->CSVDiscriminator = CSVDisc;
+		solution->MassDiscriminator = MassDisc;
+		solution->NuChi2Discriminator = NuChi2Disc;
+
+		likelihoodratio = - log(probCorrectWBMass/probIncorrectWBMass) - log(probCorrectNuChi2/probIncorrectNuChi2) - log((probCorrectHadB/probIncorrectHadB)*(probCorrectLepB/probIncorrectLepB));
+
+		// if (solution->isCorrect()){
+
+		// 	cout << "Mass Hadronic T : " << hadTop->mass() << ", Mass Hadronic W : " << hadW->mass() << endl;
+		// 	cout << "Mass Leptonic T : " << lepTop->mass() << ", Mass Leptonic W : " << lepW->mass() << endl;
+
+		// 	cout << "probCorrectHadB : " << hadBJetCSV << " prob : " << probCorrectHadB << endl;
+		// 	cout << "probIncorrectHadB : " << hadBJetCSV << " prob : " << probIncorrectHadB << endl;	
+		// 	// cout << "probCorrectLepB : " << lepBJetCSV << " prob : " << probCorrectLepB << endl;
+		// 	// cout << "probIncorrectLepB : " << lepBJetCSV << " prob : " << probIncorrectLepB << endl;
+
+		// 	// cout << "CorrectNu : " << NeutrinoChi2 << " prob : " << probCorrectNuChi2 << endl;
+		// 	// cout << "IncorrectNu : " << NeutrinoChi2 << " prob : " << probIncorrectNuChi2 << endl;
+
+		// 	// cout << "CorrectMassReco : " << Wmass << " " << Topmass << " prob : " << probCorrectWBMass << endl;
+		// 	// cout << "IncorrectMassReco : " << Wmass << " " << Topmass <<  " prob : " << probIncorrectWBMass << endl;
+
+		// 	cout << "MassDisc : " << MassDisc << endl;
+		// 	cout << "CSVDisc : " << CSVDisc << endl;
+		// 	cout << "NuChi2Disc : " << NuChi2Disc << endl;
+
+		// 	cout << "Likelihood Test : " << likelihoodratio << endl;
+		// 	}
+	}
+
+	else{
+		solution->CSVDiscriminator = 10;
+		solution->MassDiscriminator = 10;
+		solution->NuChi2Discriminator = 10;
+	}
+return likelihoodratio; 
 }
 
 } /* namespace BAT */

@@ -42,6 +42,13 @@ struct Globals {
 
 	// Likelihood ttbar reco
 	static boost::shared_ptr<TH1F> csvCorrectPermHistogram;
+	static boost::shared_ptr<TH1F> csvIncorrectPermHistogram;
+	static boost::shared_ptr<TH1F> NuChiCorrectPermHistogram;
+	static boost::shared_ptr<TH1F> NuChiIncorrectPermHistogram;
+	static boost::shared_ptr<TH2F> HadronicRecoCorrectPermHistogram;
+	static boost::shared_ptr<TH2F> HadronicRecoIncorrectPermHistogram;
+	static boost::shared_ptr<TH2F> LeptonicRecoCorrectPermHistogram;
+	static boost::shared_ptr<TH2F> LeptonicRecoIncorrectPermHistogram;
 
 	//electrons
 	static ElectronAlgorithm::value electronAlgorithm;

@@ -21,7 +21,7 @@ void LikelihoodInputAnalyser::analyse(const EventPtr event) {
 	const JetCollection AllJets(event->Jets());
 	const JetCollection jets(event->CleanedJets());
 	const JetCollection bjets(event->CleanedBJets());
-	const JetCollection genJets( event->GenJets() );
+	// const JetCollection genJets( event->GenJets() );
 
 	METAlgorithm::value metType = (METAlgorithm::value) 0;
 	const METPointer met(event->MET(metType));
@@ -42,8 +42,8 @@ void LikelihoodInputAnalyser::analyse(const EventPtr event) {
 			// if ( genJet != 0 ) {
 			// 	treeMan_->Fill("genJetPt",genJet->pt());
 			// 	treeMan_->Fill("genJetEta",genJet->eta());
-			// 	treeMan_->Fill("JetPt", AllJet->getFourVector().Pt());
-			// 	treeMan_->Fill("JetEta", AllJet->getFourVector().Eta());
+			// 	treeMan_->Fill("JetPt", AllJet->pt());
+			// 	treeMan_->Fill("JetEta", AllJet->eta());
 			// }
 
 
@@ -85,7 +85,6 @@ void LikelihoodInputAnalyser::analyse(const EventPtr event) {
 	if ( selectionCriteria < 0 ) return;
 
 	// Get objects
-
 	const LeptonPointer signalLepton = event->getSignalLepton( selectionCriteria );
 
 	JetCollection jetsWithoutBs;
