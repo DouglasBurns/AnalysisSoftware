@@ -16,7 +16,7 @@ void LikelihoodInputAnalyser::analyse(const EventPtr event) {
 	weight_ = event->weight();
 	treeMan_->setCurrentFolder(histogramFolder_);
 	unsigned int parton = 0;
-	double CSV;
+	double CSV = -1;
 
 	const JetCollection AllJets(event->Jets());
 	const JetCollection jets(event->CleanedJets());
@@ -36,19 +36,8 @@ void LikelihoodInputAnalyser::analyse(const EventPtr event) {
 			parton = abs(AllJet->matched_parton()->pdgId());
 			CSV = AllJet->getBTagDiscriminator(BAT::BtagAlgorithm::value::CombinedSecondaryVertexV2);
 
-
-			// Look at matched generator jets <----------- something im working on (lookiong at differences between jet pt and gen jet pt etc)
-			// const ParticlePointer genJet = AllJet->matched_generated_jet();
-			// if ( genJet != 0 ) {
-			// 	treeMan_->Fill("genJetPt",genJet->pt());
-			// 	treeMan_->Fill("genJetEta",genJet->eta());
-			// 	treeMan_->Fill("JetPt", AllJet->pt());
-			// 	treeMan_->Fill("JetEta", AllJet->eta());
-			// }
-
-
 			if ( abs(CSV) >= 11 ){
-				cout << "CSV : " << CSV << " Run Number : " << event->runnumber() << " Event Number : " << event->eventnumber() << " Lumi Number : " << event->lumiblock() << endl;
+				// cout << "CSV : " << CSV << " Run Number : " << event->runnumber() << " Event Number : " << event->eventnumber() << " Lumi Number : " << event->lumiblock() << endl;
 				// event->inspect(); //For more info on events failing
 				continue;
 				}
@@ -56,19 +45,11 @@ void LikelihoodInputAnalyser::analyse(const EventPtr event) {
 			if ( (parton >= 1 && parton <= 4) || (parton == 21) ){
 				treeMan_->Fill("LightJets", CSV);
 				// cout << "LightJet CSV : " << CSV << endl;
-				if ( CSV == -10 ){
-					treeMan_->Fill("LightJetPt", AllJet->getFourVector().Pt());
-					treeMan_->Fill("LightJetEta", AllJet->getFourVector().Eta());
-				}
 			}
 
 			else if ( parton == 5 ){
 				treeMan_->Fill("BJets", CSV);
 				// cout << "BJet CSV : " << CSV << endl;
-				if ( CSV == -10 ){
-					treeMan_->Fill("BJetPt", AllJet->getFourVector().Pt());
-					treeMan_->Fill("BJetEta", AllJet->getFourVector().Eta());
-				}
 			}
 
 			else{
@@ -227,19 +208,6 @@ void LikelihoodInputAnalyser::createTrees() {
 
 	treeMan_->addBranch("BJets", "F", "CSV" + Globals::treePrefix_);
 	treeMan_->addBranch("LightJets", "F", "CSV" + Globals::treePrefix_);
-	treeMan_->addBranch("LightJetPt", "F", "CSV" + Globals::treePrefix_);
-	treeMan_->addBranch("LightJetEta", "F", "CSV" + Globals::treePrefix_);
-	treeMan_->addBranch("BJetPt", "F", "CSV" + Globals::treePrefix_);
-	treeMan_->addBranch("BJetEta", "F", "CSV" + Globals::treePrefix_);
-
-
-
-	// treeMan_->addBranch("genJetPt", "F", "CSV" + Globals::treePrefix_);
-	// treeMan_->addBranch("genJetEta", "F", "CSV" + Globals::treePrefix_);
-	// treeMan_->addBranch("JetPt", "F", "CSV" + Globals::treePrefix_);
-	// treeMan_->addBranch("JetEta", "F", "CSV" + Globals::treePrefix_);
-
-
 
 	treeMan_->addBranch("LeptonicTop_Pt", "F", "TopReco" + Globals::treePrefix_);
 	treeMan_->addBranch("LeptonicTop_Energy", "F", "TopReco" + Globals::treePrefix_);
