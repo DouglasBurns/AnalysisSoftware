@@ -12,6 +12,7 @@
 #include <boost/shared_ptr.hpp>
 #include "../../interface/TtbarHypothesis.h"
 #include "BasicAnalyser.h"
+#include "../Rochester/NeutrinoSolver.h"
 
 namespace BAT {
 

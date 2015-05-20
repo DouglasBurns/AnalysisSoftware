@@ -20,6 +20,7 @@ default_settings = {
             'PUFile':'PileUp_2012_69300_truth_finebin.root',
             'MuonScaleFactors':'nofile.root',
             'PUFile':'noFile.root',
+            'TTbarLikelihoodFile' : 'LikelihoodInputAnalyserOutput.root',
             'BTagSystematic':0,
             'LightTagSystematic':0,
             'custom_file_suffix':'',
@@ -44,6 +45,7 @@ analysis_settings = {
                                 },
                      'PU_up':{'PUFile':'PileUp_2012_72765_truth_finebin.root',
                               'custom_file_suffix':'PU_72765mb'},
+
                      'Test': {'custom_file_suffix':'TESTING'}
                      }
 
@@ -103,6 +105,9 @@ getHadronTriggerFromFile = True
 hadronTriggerFile = ''
 ElectronScaleFactorSystematic = settings['ElectronScaleFactorSystematic']
 MuonScaleFactorSystematic = settings['MuonScaleFactorSystematic']
+
+TTbarLikelihoodFile = toolsFolder + "/data/" + settings['TTbarLikelihoodFile']
+
 #JES Systematic, the +/- number of uncertainties to vary the jets with
 JESsystematic = settings['JESsystematic']
 JetSmearingSystematic = settings['JetSmearingSystematic']
@@ -112,20 +117,26 @@ custom_file_suffix = settings['custom_file_suffix']
 
 input_folders = datasets[sample]
 filetype = '*.root'
+
 if ntupleToProcess > 0 :
     filetype = '*%03d.root' % ntupleToProcess
     print 'Will only consider ntuple : ',filetype
     settings['custom_file_suffix'] += str(ntupleToProcess)
     custom_file_suffix = settings['custom_file_suffix']
+
 inputFiles = [path + '/' + filetype for path in input_folders]
 # inputFiles = datasets[sample]
+print inputFiles
 
 print 'Parsed config settings:'
 for setting,value in settings.iteritems():
     print setting, '=', value
 
 #number of events to be processed
-maxEvents = 0# 0 == all
+
+maxEvents = 0100000# 0 == all
+
+
 
 #Jet Energy Resolutions files (L7 corrections)
 bJetResoFile = toolsFolder + "data/bJetReso.root"

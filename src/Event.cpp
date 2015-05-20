@@ -130,6 +130,8 @@ void Event::setJetTTBarPartons() {
 	const TTGenInfoPointer ttGen( this->TTGenInfo() );
 	ParticlePointer quark = ttGen->getQuark();
 	ParticlePointer quarkBar = ttGen->getQuarkBar();
+	ParticlePointer hadronicB = ttGen->gethadronicB();
+	ParticlePointer leptonicB = ttGen->getleptonicB();
 
 	// Only consider if there are partons from top decay
 	if ( quark == 0 || quarkBar == 0 ) return;
@@ -142,8 +144,10 @@ void Event::setJetTTBarPartons() {
 
 		FourVector partonFV = jet->matched_parton()->getFourVector();
 
-		if ( partonFV == quark->getFourVector() ) jet->set_ttbar_decay_parton( TTPartons::partonType::Quark );			
+		if ( partonFV == quark->getFourVector() ) jet->set_ttbar_decay_parton( TTPartons::partonType::Quark );	
 		else if ( partonFV == quarkBar->getFourVector() ) jet->set_ttbar_decay_parton( TTPartons::partonType::QuarkBar );
+		else if ( partonFV == hadronicB->getFourVector() ) jet->set_ttbar_decay_parton( TTPartons::partonType::HadB );	
+		else if ( partonFV == leptonicB->getFourVector() ) jet->set_ttbar_decay_parton( TTPartons::partonType::LepB );
 	}
 }
 
