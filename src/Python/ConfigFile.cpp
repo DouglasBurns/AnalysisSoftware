@@ -676,7 +676,7 @@ void ConfigFile::getHadronicRecoCorrectPermHistogram(std::string ttbarLikelihood
 	}
 
 	boost::scoped_ptr<TFile> file(TFile::Open(ttbarLikelihoodFile.c_str()));
-	Globals::HadronicRecoCorrectPermHistogram = (boost::shared_ptr<TH2F>) (TH2F*) file->Get("MT vs MW True Reconstructed B(hadronic)")->Clone();
+	Globals::HadronicRecoCorrectPermHistogram = (boost::shared_ptr<TH2F>) (TH2F*) file->Get("MT vs MW True Had B False Lep B")->Clone();
 	file->Close();
 }
 
@@ -690,7 +690,7 @@ void ConfigFile::getHadronicRecoIncorrectPermHistogram(std::string ttbarLikeliho
 	}
 
 	boost::scoped_ptr<TFile> file(TFile::Open(ttbarLikelihoodFile.c_str()));
-	Globals::HadronicRecoIncorrectPermHistogram = (boost::shared_ptr<TH2F>) (TH2F*) file->Get("MT vs MW False Reconstructed B(hadronic)")->Clone();
+	Globals::HadronicRecoIncorrectPermHistogram = (boost::shared_ptr<TH2F>) (TH2F*) file->Get("MT vs MW True Had B False Lep B")->Clone();
 	file->Close();
 }
 

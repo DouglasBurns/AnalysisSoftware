@@ -68,90 +68,30 @@ const TtbarHypothesisPointer LikelihoodBasedTopPairReconstruction::getBestSoluti
 void LikelihoodBasedTopPairReconstruction::reconstruct() {
 	typedef unsigned short ushort;
 
-
-	double BJetCSV = 0;
-	ushort TightestB = -1;
-	ushort JetIndexofB = -1;
-	for (ushort Bindex = 0; Bindex < bjets.size(); ++Bindex) {
-		JetPointer jetFromB = bjets[Bindex];
-		double X = jetFromB->getBTagDiscriminator(BAT::BtagAlgorithm::value::CombinedSecondaryVertexV2);
-		if (X >= BJetCSV){
-			BJetCSV = X;
-			TightestB = Bindex;
-		}
-	}
-
-	for (ushort Jetindex = 0; Jetindex < jets.size(); ++Jetindex) {
-		JetPointer jet = jets[Jetindex];
-		JetPointer Bjet = bjets[TightestB];
-		if (jet == Bjet){
-			JetIndexofB = Jetindex;
-			// cout << "Found Associated Jet Index : " << JetIndexofB << endl;		
-		}
-	}
-	// cout << "#####################" << endl;
-
-	for (ushort LepHadDecider = 0; LepHadDecider <= 2; ++LepHadDecider){
-		// cout << "---------------------" << endl;
-
-		for (ushort Bindex = 0; Bindex < jets.size(); ++Bindex) {
-			// cout << "*********************" << endl;
-
-			JetPointer hadBJet = jets[0];
-			JetPointer lepBJet = jets[0];
-
-			if (Bindex = JetIndexofB){
-				continue;
-			}
-
-			if (LepHadDecider == 0){
-				hadBJet = bjets[TightestB];
-				lepBJet = jets[Bindex];
-			}
-			else{
-				hadBJet = jets[Bindex];
-				lepBJet = bjets[TightestB];
-			}
-
-			// cout << "lepBjetPt : " << lepBJet->pt() << endl;
-			// cout << "hadBjetPt : " << hadBJet->pt() << endl;
-			// cout << "Hadronic CSV" << hadBJet->getBTagDiscriminator(BAT::BtagAlgorithm::value::CombinedSecondaryVertexV2) << endl;
-			// cout << "Laptonic CSV" << lepBJet->getBTagDiscriminator(BAT::BtagAlgorithm::value::CombinedSecondaryVertexV2) << endl;
-
 			LeptonPointer signallepton = leptonFromW;
 			METPointer MET = met;
-			if (!meetsHadronicBJetRequirement(hadBJet) || !meetsLeptonicBJetRequirement(lepBJet))
-				continue;//what about smilar indexes?
 
-			// // Loop b jets to get hadronic b candidate //OLD METHOD
-			// for (ushort hadBindex = 0; hadBindex < bjets.size(); ++hadBindex) {
-			// 	JetPointer hadBJet = bjets[hadBindex];
-			// 	LeptonPointer signallepton = leptonFromW;
-			// 	METPointer MET = met;
+			// Loop b jets to get hadronic b candidate 
+			for (ushort hadBindex = 0; hadBindex < bjets.size(); ++hadBindex) {
+				JetPointer hadBJet = bjets[hadBindex];
+				LeptonPointer signallepton = leptonFromW;
+				METPointer MET = met;
 
-			// 	if (!meetsHadronicBJetRequirement(hadBJet))
-			// 		continue;
-			// 	// Loop b jets to get leptonic b candidate
-			// 	for (ushort lepBindex = 0; lepBindex < bjets.size(); ++lepBindex) {
-			// 		JetPointer lepBJet = bjets[lepBindex];
-			// 		if (lepBindex == hadBindex || !meetsLeptonicBJetRequirement(lepBJet))
-			// 			continue;
+				if (!meetsHadronicBJetRequirement(hadBJet))
+					continue;
+				// Loop b jets to get leptonic b candidate
+				for (ushort lepBindex = 0; lepBindex < bjets.size(); ++lepBindex) {
+					JetPointer lepBJet = bjets[lepBindex];
+					if (lepBindex == hadBindex || !meetsLeptonicBJetRequirement(lepBJet))
+						continue;
 
 			// Loop light jets to get jets from W
-
-
-			for ( ushort jet1Index=0; jet1Index < (jets.size()-1); ++jet1Index ) {
+			for ( ushort jet1Index=0; jet1Index < (jets.size()-1); ++jet1Index ) {//what about b jets???
 				for ( ushort jet2Index=jet1Index+1; jet2Index < jets.size(); ++jet2Index ) {
 
-			// for (ushort jet1Index = 0; jet1Index < jets.size(); ++jet1Index) {
-			// 	for (ushort jet2Index = 0; jet2Index < jets.size(); ++jet2Index) {
 					JetPointer jet1FromW = jets[jet1Index];
 					JetPointer jet2FromW = jets[jet2Index];
 
-					if (jet1Index == Bindex || jet2Index == Bindex)//unknown Bjet not same jet as either of W jets
-						continue;
-					if (jet1Index == JetIndexofB || jet2Index == JetIndexofB)//known Bjet not same jet as either of W jets
-						continue;
 					if (jet2Index == jet1Index || !meetsJetFromWRequirement(jet1FromW, jet2FromW))//W jets not same as each other.
 						continue;
 
@@ -209,17 +149,20 @@ bool LikelihoodBasedTopPairReconstruction::meetsHadronicBJetRequirement(JetPoint
 }
 
 bool LikelihoodBasedTopPairReconstruction::meetsLeptonicBJetRequirement(JetPointer lepBJet){
-	if (lepBJet->pt() >= 35){
-		return true;
-	}
-	return false;
+	// if (lepBJet->pt() >= 35){
+	// 	return true;
+	// }
+	// return false;
+	return true;
+
 }
 
 bool LikelihoodBasedTopPairReconstruction::meetsJetFromWRequirement(JetPointer jet1, JetPointer jet2){
-	if (jet1->pt() >= 35 || jet2->pt() >= 35){
-		return true;
-	}
-	return false;
+	// if (jet1->pt() >= 35 || jet2->pt() >= 35){
+	// 	return true;
+	// }
+	// return false;
+	return true;
 }
 
 bool LikelihoodBasedTopPairReconstruction::meetsGlobalRequirement(const TtbarHypothesisPointer solution){
@@ -245,7 +188,6 @@ double LikelihoodBasedTopPairReconstruction::getDiscriminator(const TtbarHypothe
 
 	double Wmass = hadW->mass();
 	double Topmass = hadTop->mass();
-
 
 	double probCorrectHadB = Globals::csvCorrectPermHistogram->Interpolate( hadBJetCSV );
 	double probIncorrectHadB = Globals::csvIncorrectPermHistogram->Interpolate( hadBJetCSV );
