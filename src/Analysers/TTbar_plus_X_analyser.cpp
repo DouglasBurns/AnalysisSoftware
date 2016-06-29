@@ -25,9 +25,12 @@ void TTbar_plus_X_analyser::ePlusJetsSignalAnalysis(const EventPtr event) {
 	if (event->PassesElectronTriggerAndSelectionNoB()){
 		BTagEffAnalyserEPlusJetsRefSelection_->analyse(event);
 		PileupAnalyserEPlusJetsRefSelection_->analyse(event);
-		fillCommonTreesNoBSelection( event, SelectionCriteria::ElectronPlusJetsReference, histogramFolder_ + "/EPlusJets/Ref selection NoBSelection" );
+		// fillCommonTreesNoBSelection( event, SelectionCriteria::ElectronPlusJetsReference, histogramFolder_ + "/EPlusJets/Ref selection NoBSelection" );
+		fillCommonTrees( event, SelectionCriteria::ElectronPlusJetsReference, histogramFolder_ + "/EPlusJets/Ref selection NoBSelection" );
 	}
-
+	if (event->PassesElectronTriggerAndSelectionTightB()){
+		fillCommonTrees( event, SelectionCriteria::ElectronPlusJetsReference, histogramFolder_ + "/EPlusJets/Ref selection TightBSelection" );
+	}
 	if ( event->PassesElectronTriggerAndSelection() ) {
 		// Fill branches that are common amongst all regions
 		fillCommonTrees( event, SelectionCriteria::ElectronPlusJetsReference, histogramFolder_ + "/EPlusJets/Ref selection" );
@@ -39,10 +42,10 @@ void TTbar_plus_X_analyser::ePlusJetsQcdAnalysis(const EventPtr event) {
 	if ( event->PassesElectronTriggerAndQCDSelection() ) {
 		fillCommonTrees( event, SelectionCriteria::ElectronPlusJetsQCDNonIsolated, histogramFolder_ + "/EPlusJets/QCD non iso e+jets" );
 	}
-
 	if ( event->PassesElectronTriggerAndConversionSelection() ) {
 		fillCommonTrees( event, SelectionCriteria::ElectronPlusJetsQCDConversion, histogramFolder_ + "/EPlusJets/QCDConversions" );
 	}
+
 }
 
 void TTbar_plus_X_analyser::muPlusJetsSignalAnalysis(const EventPtr event) {
@@ -51,9 +54,12 @@ void TTbar_plus_X_analyser::muPlusJetsSignalAnalysis(const EventPtr event) {
 	if (event->PassesMuonTriggerAndSelectionNoB()){
 		BTagEffAnalyserMuPlusJetsRefSelection_->analyse(event);
 		PileupAnalyserMuPlusJetsRefSelection_->analyse(event);
-		fillCommonTreesNoBSelection( event, SelectionCriteria::MuonPlusJetsReference, histogramFolder_ + "/MuPlusJets/Ref selection NoBSelection" );
+		// fillCommonTreesNoBSelection( event, SelectionCriteria::MuonPlusJetsReference, histogramFolder_ + "/MuPlusJets/Ref selection NoBSelection" );
+		fillCommonTrees( event, SelectionCriteria::MuonPlusJetsReference, histogramFolder_ + "/MuPlusJets/Ref selection NoBSelection" );
 	}
-
+	if (event->PassesMuonTriggerAndSelectionTightB()){
+		fillCommonTrees( event, SelectionCriteria::MuonPlusJetsReference, histogramFolder_ + "/MuPlusJets/Ref selection TightBSelection" );
+	}
 	if ( event->PassesMuonTriggerAndSelection() ) {
 		fillCommonTrees( event, SelectionCriteria::MuonPlusJetsReference, histogramFolder_ + "/MuPlusJets/Ref selection" );
 	}
@@ -65,13 +71,15 @@ void TTbar_plus_X_analyser::muPlusJetsQcdAnalysis(const EventPtr event) {
 	if ( event->PassesMuonTriggerAndQCDSelection1p5to3() ) {
 		fillCommonTrees( event, SelectionCriteria::MuonPlusJetsQCDNonIsolated1p5to3, histogramFolder_ + "/MuPlusJets/QCD non iso mu+jets 1p5to3" );
 	}
-
 	if ( event->PassesMuonTriggerAndQCDSelection3toInf() ) {
 		fillCommonTrees( event, SelectionCriteria::MuonPlusJetsQCDNonIsolated3toInf, histogramFolder_ + "/MuPlusJets/QCD non iso mu+jets 3toInf" );
 	}
+
 }
 
 void TTbar_plus_X_analyser::createCutflow(const EventPtr event, const unsigned int selectionCriteria, std::string folder ) {
+	// Create histogram here?
+
 	std::vector <bool> cuts(event->getCuts(selectionCriteria));
 	std::vector <bool> SelectionPass;
 	bool PassAll(true);
@@ -104,7 +112,6 @@ void TTbar_plus_X_analyser::createCutflow(const EventPtr event, const unsigned i
 
 void TTbar_plus_X_analyser::fillCommonTrees(const EventPtr event, const unsigned int selectionCriteria, std::string folder ) {
 	SelectionCriteria::selection selection = SelectionCriteria::selection(selectionCriteria);
-
 	// Jets
 	const JetCollection jets(event->CleanedJets());
 	// B Jets
@@ -159,6 +166,7 @@ void TTbar_plus_X_analyser::fillCommonTrees(const EventPtr event, const unsigned
 	treeMan_->Fill("BJetDownWeight",event->BJetDownWeight());
 	treeMan_->Fill("LightJetUpWeight",event->LightJetUpWeight());
 	treeMan_->Fill("LightJetDownWeight",event->LightJetDownWeight());
+	treeMan_->Fill("TightBJetWeight",event->TightBJetWeight());
 
 	// MET Uncertainties		
 	for ( unsigned int unc_i = 0; unc_i < MET_original->getAllMETUncertainties().size(); ++unc_i ) {		
@@ -196,6 +204,7 @@ void TTbar_plus_X_analyser::fillCommonTreesNoBSelection(const EventPtr event,  c
 	treeMan_->Fill("BJetDownWeight",event->BJetDownWeight());
 	treeMan_->Fill("LightJetUpWeight",event->LightJetUpWeight());
 	treeMan_->Fill("LightJetDownWeight",event->LightJetDownWeight());
+	treeMan_->Fill("TightBJetWeight",event->TightBJetWeight());
 
 	if (selection == SelectionCriteria::selection(SelectionCriteria::ElectronPlusJetsReference)){
 		treeMan_->Fill("lepton_isolation", signalLepton->PFRelIso03DeltaBeta());
@@ -275,6 +284,7 @@ void TTbar_plus_X_analyser::createCommonTrees( std::string folder) {
 	treeMan_->addBranch("BJetDownWeight", "F", "FitVariables" + Globals::treePrefix_);
 	treeMan_->addBranch("LightJetUpWeight", "F", "FitVariables" + Globals::treePrefix_);
 	treeMan_->addBranch("LightJetDownWeight", "F", "FitVariables" + Globals::treePrefix_);
+	treeMan_->addBranch("TightBJetWeight", "F", "FitVariables" + Globals::treePrefix_);
 }
 
 void TTbar_plus_X_analyser::createCommonNoBSelectionTrees( std::string folder) {
@@ -294,6 +304,7 @@ void TTbar_plus_X_analyser::createCommonNoBSelectionTrees( std::string folder) {
 	treeMan_->addBranch("BJetDownWeight", "F", "FitVariables" + Globals::treePrefix_);
 	treeMan_->addBranch("LightJetUpWeight", "F", "FitVariables" + Globals::treePrefix_);
 	treeMan_->addBranch("LightJetDownWeight", "F", "FitVariables" + Globals::treePrefix_);
+	treeMan_->addBranch("TightBJetWeight", "F", "FitVariables" + Globals::treePrefix_);
 	treeMan_->addBranch("lepton_isolation", "F", "FitVariables" + Globals::treePrefix_);
 }
 
@@ -311,8 +322,12 @@ void TTbar_plus_X_analyser::createTrees() {
 	createCommonTrees(histogramFolder_ + "/MuPlusJets/QCD non iso mu+jets 1p5to3");
 	createCommonTrees(histogramFolder_ + "/MuPlusJets/QCD non iso mu+jets 3toInf");
 
-	createCommonNoBSelectionTrees(histogramFolder_ + "/EPlusJets/Ref selection NoBSelection");
-	createCommonNoBSelectionTrees(histogramFolder_ + "/MuPlusJets/Ref selection NoBSelection");
+	// createCommonNoBSelectionTrees(histogramFolder_ + "/EPlusJets/Ref selection NoBSelection");
+	// createCommonNoBSelectionTrees(histogramFolder_ + "/MuPlusJets/Ref selection NoBSelection");
+	createCommonTrees(histogramFolder_ + "/EPlusJets/Ref selection NoBSelection");
+	createCommonTrees(histogramFolder_ + "/MuPlusJets/Ref selection NoBSelection");
+	createCommonTrees(histogramFolder_ + "/EPlusJets/Ref selection TightBSelection");
+	createCommonTrees(histogramFolder_ + "/MuPlusJets/Ref selection TightBSelection");
 
 	createCommonCutflowTrees(histogramFolder_ + "/EPlusJets/Cutflow");
 	createCommonCutflowTrees(histogramFolder_ + "/MuPlusJets/Cutflow");
