@@ -81,6 +81,13 @@ protected:
 	bool passesMuonQCDSelection1p5to3NoB_;
 	bool passesMuonQCDSelection3toInfNoB_;
 
+	bool passesElectronSelectionTightB_;
+	bool passesElectronQCDSelectionTightB_;
+	bool passesElectronConversionSelectionTightB_;
+	bool passesMuonSelectionTightB_;
+	bool passesMuonQCDSelection1p5to3TightB_;
+	bool passesMuonQCDSelection3toInfTightB_;
+
 	bool passesMETFilters_;
 
 	bool isSemiLeptonicElectron_;
@@ -164,9 +171,16 @@ public:
 	void setPassesMuonSelectionNoB(bool passesMuonSelectionNoB);
 	void setPassesMuonQCDSelection1p5to3NoB(bool passesMuonQCDSelection1p5to3NoB);
 	void setPassesMuonQCDSelection3toInfNoB(bool passesMuonQCDSelection3toInfNoB);
+	void setPassesElectronSelectionTightB(bool passesElectronSelectionTightB);
+	void setPassesElectronQCDSelectionTightB(bool passesElectronQCDSelectionTightB);
+	void setPassesElectronConversionSelectionTightB(bool passesElectronConversionSelectionTightB);
+	void setPassesMuonSelectionTightB(bool passesMuonSelectionTightB);
+	void setPassesMuonQCDSelection1p5to3TightB(bool passesMuonQCDSelection1p5to3TightB);
+	void setPassesMuonQCDSelection3toInfTightB(bool passesMuonQCDSelection3toInfTightB);
 	void setPassOfflineSelectionInfo( std::vector<unsigned int> );
 	const bool passesJetSelection( const unsigned int selectionCriteria );
 	const bool passesBJetSelection( const unsigned int selectionCriteria );
+	const bool passesTightBJetSelection( const unsigned int selectionCriteria );
 	const bool passesSignalLeptonSelection( const unsigned int selectionCriteria );
 	void setPassGenSelectionInfo( std::vector<unsigned int> );
 	void setIsSemiLeptonicElectron( bool isSemiLeptonicElectron );
@@ -266,12 +280,26 @@ public:
 	const bool PassesMuonQCDSelection1p5to3NoB() const;
 	const bool PassesMuonQCDSelection3toInfNoB() const;
 
+	const bool PassesElectronSelectionTightB() const;
+	const bool PassesElectronQCDSelectionTightB() const;
+	const bool PassesElectronConversionSelectionTightB() const;
+	const bool PassesMuonSelectionTightB() const;
+	const bool PassesMuonQCDSelection1p5to3TightB() const;
+	const bool PassesMuonQCDSelection3toInfTightB() const;
+
 	const bool PassesElectronTriggerAndSelectionNoB() const;
 	const bool PassesMuonTriggerAndSelectionNoB() const;
 	const bool PassesElectronTriggerAndQCDSelectionNoB() const;
 	const bool PassesElectronTriggerAndConversionSelectionNoB() const;
 	const bool PassesMuonTriggerAndQCDSelection1p5to3NoB() const;
 	const bool PassesMuonTriggerAndQCDSelection3toInfNoB() const;
+
+	const bool PassesElectronTriggerAndSelectionTightB() const;
+	const bool PassesMuonTriggerAndSelectionTightB() const;
+	const bool PassesElectronTriggerAndQCDSelectionTightB() const;
+	const bool PassesElectronTriggerAndConversionSelectionTightB() const;
+	const bool PassesMuonTriggerAndQCDSelection1p5to3TightB() const;
+	const bool PassesMuonTriggerAndQCDSelection3toInfTightB() const;
 
 	const bool isSemiLeptonicElectron() const;
 	const bool isSemiLeptonicMuon() const;
@@ -360,6 +388,8 @@ public:
 	static double const minSignalMuonEta_;
 	static double const minSignalElectronPt_;
 	static double const minSignalElectronEta_;
+
+	static double const tightBTagWP_;
 
 };
 
